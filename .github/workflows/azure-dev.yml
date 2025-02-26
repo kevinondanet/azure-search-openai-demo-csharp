@@ -6,6 +6,10 @@ on:
         description: The reason for running the workflow
         required: false
         default: Manual run
+      azure_env_name:
+        description: 'Name for the Azure environment'
+        required: false
+        default: dev
   push:
     branches:
       - main
@@ -83,16 +87,16 @@ jobs:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Provision Infrastructure
-        run: azd provision --no-prompt --debug
+        run: azd provision --environment ${{ github.event.inputs.azure_env_name }} --no-prompt --debug
         env:
-          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+          AZURE_ENV_NAME: ${{ github.event.inputs.azure_env_name }}
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           AZURE_TAGS: ${{ secrets.AZURE_TAGS }}
 
       - name: Deploy Application
-        run: azd deploy --no-prompt --debug
+        run: azd deploy --environment ${{ github.event.inputs.azure_env_name }} --no-prompt --debug
         env:
-          AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+          AZURE_ENV_NAME: ${{ github.event.inputs.azure_env_name }}
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
